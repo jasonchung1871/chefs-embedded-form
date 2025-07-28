@@ -1,0 +1,186 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: embedded-chefs-build
+  annotations:
+    openshift.io/display-name: "Embedded CHEFS with Build"
+objects:
+
+  # 1) ImageStream for the built image
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+
+  # 2) BuildConfig to build from source
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      source:
+        type: Git
+        git:
+          uri: "${GIT_REPO_URL}"
+          ref: "${GIT_REF}"
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile.openshift
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${APP_NAME}:latest"
+      triggers:
+        - type: ConfigChange
+        - type: GitHub
+          github:
+            secret: "${GITHUB_WEBHOOK_SECRET}"
+
+  # 3) DeploymentConfig using the built image (better for ImageStream integration)
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        app: "${APP_NAME}"
+      template:
+        metadata:
+          labels:
+            app: "${APP_NAME}"
+        spec:
+          containers:
+            - name: nginx
+              image: "${APP_NAME}:latest"
+              ports:
+                - containerPort: 8080
+              env:
+                - name: VITE_CHEFS_BASE_URL
+                  value: "${VITE_CHEFS_BASE_URL}"
+                - name: VITE_CHEFS_BASE_PATH
+                  value: "${VITE_CHEFS_BASE_PATH}"
+                - name: VITE_API_FORM_ID
+                  value: "${VITE_API_FORM_ID}"
+                - name: VITE_API_FORM_VERSION_ID
+                  value: "${VITE_API_FORM_VERSION_ID}"
+                - name: VITE_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: api-key
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - nginx
+            from:
+              kind: ImageStreamTag
+              name: "${APP_NAME}:latest"
+        - type: ConfigChange
+
+  # 4) Secret for API key
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: "${APP_NAME}-secrets"
+    type: Opaque
+    stringData:
+      api-key: "${VITE_API_KEY}"
+
+  # 5) Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      selector:
+        app: "${APP_NAME}"
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+
+  # 6) Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "${APP_NAME}"
+    spec:
+      host: "${ROUTE_HOST}"
+      path: "${ROUTE_PATH}"
+      to:
+        kind: Service
+        name: "${APP_NAME}"
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+
+parameters:
+  - name: APP_NAME
+    displayName: Application Name
+    required: true
+    value: "chefs-embedded-form"
+
+  - name: GIT_REPO_URL
+    displayName: Git Repository URL
+    required: true
+    value: "https://github.com/jasonchung1871/chefs-embedded-form.git"
+
+  - name: GIT_REF
+    displayName: Git Reference
+    required: true
+    value: "main"
+
+  - name: GITHUB_WEBHOOK_SECRET
+    displayName: GitHub Webhook Secret
+    generate: expression
+    from: "[a-zA-Z0-9]{40}"
+
+  - name: ROUTE_HOST
+    displayName: Route Host
+    required: true
+
+  - name: ROUTE_PATH
+    displayName: Route Path
+    required: true
+    value: "/"
+
+  - name: VITE_CHEFS_BASE_URL
+    displayName: CHEFS API URL
+    required: true
+    value: "https://chefs-dev.apps.silver.devops.gov.bc.ca"
+
+  - name: VITE_CHEFS_BASE_PATH
+    displayName: CHEFS API PATH
+    required: true
+    value: "/pr-1736/api/v1"
+
+  - name: VITE_API_FORM_ID
+    displayName: Form ID
+    required: true
+
+  - name: VITE_API_FORM_VERSION_ID
+    displayName: Form Version ID
+    required: true
+
+  - name: VITE_API_KEY
+    displayName: API Key
+    required: true
+
+  - name: REPLICAS
+    displayName: Number of Replicas
+    required: true
+    value: "1"
