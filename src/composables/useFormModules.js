@@ -1,6 +1,6 @@
 import { ref, reactive } from 'vue';
-import { chefsApi } from '../services/chefsApi.js';
-import config from '../config/index.js';
+import { chefsApi } from '@/services/chefsApi.js';
+import config from '@/config/index.js';
 
 /**
  * Composable for managing form module data and state

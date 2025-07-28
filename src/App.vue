@@ -1,5 +1,5 @@
 <script setup>
-import EmbeddedForm from './components/EmbeddedForm.vue'
+import EmbeddedForm from '@/components/EmbeddedForm.vue'
 </script>
 
 <template>

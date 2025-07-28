@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed, reactive } from 'vue';
-import { chefsApi } from '../services/chefsApi.js';
-import config from '../config/index.js';
-import { componentLoader } from '../services/componentLoader.js';
+import { chefsApi } from '@/services/chefsApi.js';
+import config from '@/config/index.js';
+import { componentLoader } from '@/services/componentLoader.js';
 import { Formio } from 'formiojs';
 
 // Make Formio available globally for external components

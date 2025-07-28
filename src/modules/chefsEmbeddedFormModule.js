@@ -5,8 +5,8 @@
  * in a standalone application. This module can be imported and used independently.
  */
 
-import { chefsApi } from '../services/chefsApi.js';
-import { componentLoader } from '../services/componentLoader.js';
+import { chefsApi } from '@/services/chefsApi.js';
+import { componentLoader } from '@/services/componentLoader.js';
 import { Formio } from '@formio/js';
 
 class ChefsEmbeddedForm {

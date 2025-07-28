@@ -14,7 +14,8 @@ cp env-template.txt .env
 
 # Edit .env with your actual values
 # Required variables:
-# - VITE_CHEFS_API_URL
+# - VITE_CHEFS_BASE_URL
+# - VITE_CHEFS_BASE_PATH
 # - VITE_API_FORM_ID  
 # - VITE_API_FORM_VERSION_ID
 ```
@@ -45,10 +46,10 @@ The built files will be in the `dist/` folder. Deploy this folder to any static 
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_CHEFS_API_URL` | CHEFS API base URL | `https://submit.digital.gov.bc.ca/app/api/v1` |
+| `VITE_CHEFS_BASE_URL` | CHEFS API base URL | `https://submit.digital.gov.bc.ca` |
+| `VITE_CHEFS_BASE_PATH` | CHEFS API base path | `/app/api/v1` |
 | `VITE_API_FORM_ID` | Your form ID (UUID) | `aeb3b705-1de5-4f4e-a4e6-0716b7671034` |
 | `VITE_API_FORM_VERSION_ID` | Form version ID (UUID) | `a675ab2a-1e88-4fb5-88f9-c7cb051a18b2` |
-| `VITE_DEBUG_MODE` | Show debug tools (optional) | `false` |
 
 ### Getting Form Details
 
@@ -63,18 +64,7 @@ The built files will be in the `dist/` folder. Deploy this folder to any static 
 ```bash
 # Start development server
 npm run dev
-
-# Development tools will be available at bottom of page
-# when VITE_DEBUG_MODE=true
 ```
-
-### Debug Mode
-
-Set `VITE_DEBUG_MODE=true` to show:
-- Configuration status
-- API testing tools  
-- Raw data inspector
-- Development utilities
 
 ## 📁 Project Structure
 

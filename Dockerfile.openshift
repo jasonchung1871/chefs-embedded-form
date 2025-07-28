@@ -25,9 +25,13 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+
 # Create required directories for OpenShift
 RUN mkdir -p /tmp /var/cache/nginx /var/log/nginx /var/run && \
     chmod -R 777 /tmp /var/cache/nginx /var/log/nginx /var/run && \
+    chmod +x /entrypoint.sh && \
     chown -R nginx:nginx /usr/share/nginx/html
 
 # Switch to nginx user for OpenShift security
@@ -37,4 +41,4 @@ USER nginx
 EXPOSE 8080
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]

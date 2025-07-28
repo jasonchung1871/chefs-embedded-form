@@ -183,7 +183,24 @@ class ChefsApi {
       console.log(`📋 Fetching form schema for form: ${formId}`);
       const response = await this.apiClient.get(`/forms/${formId}/version`);
       console.log('✅ Form schema retrieved successfully');
-      return response.data;
+      
+      // Extract the actual FormIO schema from CHEFS response
+      // CHEFS API returns form metadata with a versions array containing the actual schema
+      const formData = response.data;
+      
+      if (formData.versions && formData.versions.length > 0) {
+        // Get the first (usually current) version's schema
+        const version = formData.versions[0];
+        if (version.schema) {
+          console.log('📋 Extracted FormIO schema from CHEFS version data');
+          return version.schema;
+        }
+      }
+      
+      // Fallback: return the raw response if no versions array
+      console.log('📋 Using raw response as schema (no versions array found)');
+      return formData;
+      
     } catch (error) {
       console.error('❌ Failed to fetch form schema:', error);
       throw error;

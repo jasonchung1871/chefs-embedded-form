@@ -101,7 +101,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import defaultConfig from '../config/index.js';
+import defaultConfig from '@/config/index.js';
 
 const props = defineProps({
   config: {

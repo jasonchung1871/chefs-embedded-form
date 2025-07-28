@@ -5,12 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
-    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "build:production": "vite build --mode production",
-    "build:staging": "vite build --mode staging",
+    "build": "vite build --mode production",
     "serve": "vite preview --port 3000",
     "check-env": "node -e \"console.log('Environment check:', Object.keys(process.env).filter(k => k.startsWith('VITE_')).map(k => ({ [k]: process.env[k] ? '✓ SET' : '✗ MISSING' })))\""
   },

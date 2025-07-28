@@ -21,7 +21,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { Formio } from 'formiojs';
-import chefsApi from '../services/chefsApi.js';
+import chefsApi from '@/services/chefsApi.js';
 
 console.log('FormIORenderer: Using FormIO 4.17.4 to match BC Gov components');
 

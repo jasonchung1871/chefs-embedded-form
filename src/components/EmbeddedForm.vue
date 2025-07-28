@@ -57,15 +57,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useChefsFormStore } from '../stores/chefsForm.js';
-import FormIORenderer from './FormIORenderer.vue';
-import ConfigurationStatus from './ConfigurationStatus.vue';
-import config from '../config/index.js';
+import { useChefsFormStore } from '@/stores/chefsForm.js';
+import FormIORenderer from '@/components/FormIORenderer.vue';
+import ConfigurationStatus from '@/components/ConfigurationStatus.vue';
 
 const props = defineProps({
   showConfig: {
     type: Boolean,
-    default: () => config.debugMode
+    default: true  // Always show config status by default
   },
   autoLoad: {
     type: Boolean,

@@ -20,7 +20,8 @@ param(
     [string]$ImageName = "chefs-embedded-form",
     [string]$ImageTag = "latest",
     [string]$RoutePath = "/",
-    [string]$ChefsApiUrl = "https://chefs-dev.apps.silver.devops.gov.bc.ca/pr-1736/api/v1",
+    [string]$ChefsApiBaseUrl = "https://chefs-dev.apps.silver.devops.gov.bc.ca/",
+    [string]$ChefsApiBasePath = "/pr-1736/api/v1"
     [int]$Replicas = 1,
     [switch]$DryRun
 )
@@ -41,7 +42,8 @@ $processCommand = @(
     "-p", "IMAGE_TAG=$ImageTag",
     "-p", "ROUTE_HOST=$RouteHost",
     "-p", "ROUTE_PATH=$RoutePath",
-    "-p", "VITE_CHEFS_API_URL=$ChefsApiUrl",
+    "-p", "VITE_CHEFS_BASE_URL=$ChefsApiBaseUrl",
+    "-p", "VITE_CHEFS_BASE_PATH=$ChefsApiPath",
     "-p", "VITE_API_FORM_ID=$FormId",
     "-p", "VITE_API_FORM_VERSION_ID=$FormVersionId",
     "-p", "VITE_API_KEY=$ApiKey",
