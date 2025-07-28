@@ -1,0 +1,181 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: embedded-chefs-static
+  annotations:
+    openshift.io/display-name: "Embedded CHEFS Static Site (NGINX)"
+objects:
+
+  # 1) ConfigMap: nginx.conf + index.html
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: "${APP_NAME}-static-config"
+    data:
+      nginx.conf: |
+        worker_processes  auto;
+        pid              /tmp/nginx.pid;
+        error_log        /var/log/nginx/error.log warn;
+
+        events {
+          worker_connections 1024;
+        }
+
+        http {
+          include             /etc/nginx/mime.types;
+          default_type        application/octet-stream;
+          sendfile            on;
+          keepalive_timeout   65;
+
+          # write all temp files under /tmp (writable)
+          client_body_temp_path  /tmp/client_body_temp;
+          proxy_temp_path        /tmp/proxy_temp;
+          fastcgi_temp_path      /tmp/fastcgi_temp;
+          uwsgi_temp_path        /tmp/uwsgi_temp;
+          scgi_temp_path         /tmp/scgi_temp;
+
+          server {
+            listen       8080;
+            server_name  localhost;
+            root         /usr/share/nginx/html;
+            index        index.html;
+
+            location / {
+              try_files $uri $uri/ =404;
+            }
+          }
+        }
+
+      index.html: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${APP_NAME} - Static Site</title>
+          <style>
+            .form-container { width:100%; height:800px; }
+            .form-container iframe { width:100%; height:100%; border:none; }
+          </style>
+        </head>
+        <body>
+          <h1>Welcome to ${APP_NAME}</h1>
+          <div class="form-container">
+            <iframe
+              src="${FORM_IFRAME_SRC}"
+              title="Embedded Form"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </body>
+        </html>
+
+  # 2) Deployment: nginx on 8080, mount ConfigMap + tmp + empty conf.d
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        matchLabels:
+          app: "${APP_NAME}"
+      template:
+        metadata:
+          labels:
+            app: "${APP_NAME}"
+        spec:
+          containers:
+            - name: nginx
+              image: nginx:1.23-alpine
+              ports:
+                - containerPort: 8080
+              volumeMounts:
+                - name: config
+                  mountPath: /etc/nginx/nginx.conf
+                  subPath: nginx.conf
+                - name: content
+                  mountPath: /usr/share/nginx/html/index.html
+                  subPath: index.html
+                - name: tmp
+                  mountPath: /tmp
+                - name: confd
+                  mountPath: /etc/nginx/conf.d
+          volumes:
+            - name: config
+              configMap:
+                name: "${APP_NAME}-static-config"
+                items:
+                  - key: nginx.conf
+                    path: nginx.conf
+            - name: content
+              configMap:
+                name: "${APP_NAME}-static-config"
+                items:
+                  - key: index.html
+                    path: index.html
+            - name: tmp
+              emptyDir: {}
+            - name: confd
+              emptyDir: {}
+
+  # 3) Service: expose 8080
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      selector:
+        app: "${APP_NAME}"
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+
+  # 4) Route: HTTPS edge termination
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "${APP_NAME}"
+    spec:
+      host: "${ROUTE_HOST}"
+      path: "${ROUTE_PATH}"
+      to:
+        kind: Service
+        name: "${APP_NAME}"
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+
+parameters:
+
+  - name: APP_NAME
+    displayName: Application Name
+    description: Unique name for Deployment/Service/Route
+    required: true
+
+  - name: ROUTE_HOST
+    displayName: Route Host
+    description: e.g. embedded-chefs.apps.silver.devops.gov.bc.ca
+    required: true
+
+  - name: ROUTE_PATH
+    displayName: Route Path
+    description: URL path prefix ("/" or "/pr-1721")
+    required: true
+    value: "/"
+
+  - name: FORM_IFRAME_SRC
+    displayName: Iframe Source URL
+    description: URL of the embedded CHEFS form
+    required: true
+
+  - name: REPLICAS
+    displayName: Number of Replicas
+    description: How many nginx pods to run
+    required: true
+    value: "1"

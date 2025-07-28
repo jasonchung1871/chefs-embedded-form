@@ -1,0 +1,18 @@
+# CHEFS Embedded Form Configuration
+# Copy this file to .env and fill in your actual values
+
+# CHEFS API URL (without trailing slash)
+VITE_CHEFS_API_URL=https://submit.digital.gov.bc.ca/app/api/v1
+
+# Form Configuration
+VITE_API_FORM_ID=your-form-id-here
+VITE_API_FORM_VERSION_ID=your-form-version-id-here
+
+# Optional: Enable debug mode (shows development tools)
+VITE_DEBUG_MODE=false
+
+# Deployment Instructions:
+# 1. Copy this file to .env
+# 2. Fill in your actual CHEFS form details
+# 3. Run: npm run build
+# 4. Deploy the dist/ folder to your web server

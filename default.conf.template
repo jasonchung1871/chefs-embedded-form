@@ -1,0 +1,24 @@
+# included *inside* the global http { … } block
+
+# write all temp files under /tmp so non-root can write them
+client_body_temp_path  /tmp/client_body_temp;
+proxy_temp_path        /tmp/proxy_temp;
+fastcgi_temp_path      /tmp/fastcgi_temp;
+uwsgi_temp_path        /tmp/uwsgi_temp;
+scgi_temp_path         /tmp/scgi_temp;
+
+# control framing via header
+add_header X-Frame-Options "${ALLOWED_ORIGIN}";
+
+# your server definition
+server {
+    listen       80;
+    server_name  localhost;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

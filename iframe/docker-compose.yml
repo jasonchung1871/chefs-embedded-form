@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+
+  embed-a:
+    build: .
+    container_name: embed-a
+    ports:
+      - "8001:80"
+    environment:
+      # point this at your real submission-form URL
+      - IFRAME_SRC=http://localhost:5173/app/form/submit?f=076f33a7-64c4-406d-a6e1-6e53bf269d84
+
+  embed-b:
+    build: .
+    container_name: embed-b
+    ports:
+      - "8002:80"
+    environment:
+      - IFRAME_SRC=http://localhost:5173/app/form/submit?f=076f33a7-64c4-406d-a6e1-6e53bf269d84

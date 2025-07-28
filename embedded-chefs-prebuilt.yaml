@@ -1,0 +1,140 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: embedded-chefs-prebuilt
+  annotations:
+    openshift.io/display-name: "Embedded CHEFS Pre-built Image"
+objects:
+
+  # 1) Deployment: Use pre-built image
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        matchLabels:
+          app: "${APP_NAME}"
+      template:
+        metadata:
+          labels:
+            app: "${APP_NAME}"
+        spec:
+          containers:
+            - name: nginx
+              image: "${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}"
+              ports:
+                - containerPort: 8080
+              env:
+                - name: VITE_CHEFS_API_URL
+                  value: "${VITE_CHEFS_API_URL}"
+                - name: VITE_API_FORM_ID
+                  value: "${VITE_API_FORM_ID}"
+                - name: VITE_API_FORM_VERSION_ID
+                  value: "${VITE_API_FORM_VERSION_ID}"
+                - name: VITE_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: api-key
+
+  # 2) Secret: Store sensitive environment variables
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: "${APP_NAME}-secrets"
+    type: Opaque
+    stringData:
+      api-key: "${VITE_API_KEY}"
+
+  # 3) Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: "${APP_NAME}"
+      labels:
+        app: "${APP_NAME}"
+    spec:
+      selector:
+        app: "${APP_NAME}"
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+
+  # 4) Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "${APP_NAME}"
+    spec:
+      host: "${ROUTE_HOST}"
+      path: "${ROUTE_PATH}"
+      to:
+        kind: Service
+        name: "${APP_NAME}"
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+
+parameters:
+  - name: APP_NAME
+    displayName: Application Name
+    required: true
+
+  - name: IMAGE_REGISTRY
+    displayName: Image Registry
+    description: e.g. ghcr.io or image-registry.openshift-image-registry.svc:5000
+    required: true
+    value: "ghcr.io"
+
+  - name: IMAGE_NAMESPACE
+    displayName: Image Namespace
+    description: e.g. your-github-username
+    required: true
+
+  - name: IMAGE_NAME
+    displayName: Image Name
+    required: true
+    value: "chefs-embedded-form"
+
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    required: true
+    value: "latest"
+
+  - name: ROUTE_HOST
+    displayName: Route Host
+    required: true
+
+  - name: ROUTE_PATH
+    displayName: Route Path
+    required: true
+    value: "/"
+
+  - name: VITE_CHEFS_API_URL
+    displayName: CHEFS API URL
+    required: true
+    value: "https://chefs-dev.apps.silver.devops.gov.bc.ca/pr-1736/api/v1"
+
+  - name: VITE_API_FORM_ID
+    displayName: Form ID
+    required: true
+
+  - name: VITE_API_FORM_VERSION_ID
+    displayName: Form Version ID
+    required: true
+
+  - name: VITE_API_KEY
+    displayName: API Key
+    required: true
+
+  - name: REPLICAS
+    displayName: Number of Replicas
+    required: true
+    value: "1"
