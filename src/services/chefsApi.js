@@ -149,6 +149,18 @@ class ChefsApi {
   }
 
   /**
+   * Set base API URL and update client base URLs
+   */
+  setBaseUrl(baseApiUrl) {
+    console.log('🌐 Setting CHEFS API base URL:', baseApiUrl);
+    this.config.baseApiUrl = baseApiUrl;
+    
+    // Update both API clients with new base URL
+    this.apiClient.defaults.baseURL = baseApiUrl;
+    this.fileClient.defaults.baseURL = baseApiUrl;
+  }
+
+  /**
    * Set bearer token for authentication
    */
   setAuthToken(token) {

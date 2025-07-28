@@ -38,8 +38,30 @@ export const useChefsFormStore = defineStore('chefsForm', () => {
     chefsApi.setCredentials(config.formId, config.apiKey);
   }
 
+  // Initialize base URL if available
+  if (config.apiUrl) {
+    chefsApi.setBaseUrl(config.apiUrl);
+  }
+
   // Computed
   const isFullyConfigured = computed(() => {
+    const configStatus = {
+      baseApiUrl: !!formConfig.baseApiUrl,
+      formId: !!formConfig.formId,
+      formVersionId: !!formConfig.formVersionId,
+      apiKey: !!formConfig.apiKey
+    };
+    
+    console.log('🔍 Configuration status:', {
+      ...configStatus,
+      values: {
+        baseApiUrl: formConfig.baseApiUrl || 'NOT_SET',
+        formId: formConfig.formId || 'NOT_SET',
+        formVersionId: formConfig.formVersionId || 'NOT_SET',
+        apiKey: formConfig.apiKey ? '***REDACTED***' : 'NOT_SET'
+      }
+    });
+    
     return !!(
       formConfig.baseApiUrl &&
       formConfig.formId &&
