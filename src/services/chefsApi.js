@@ -31,9 +31,6 @@ class ChefsApi {
    * Create axios clients with different configurations
    */
   createApiClients() {
-    // Check if we're in development
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
     // Main API client (for form operations - requires auth)
     this.apiClient = axios.create({
       timeout: this.config.timeout,
@@ -47,16 +44,10 @@ class ChefsApi {
       timeout: this.config.timeout
     });
 
-    // Set base URLs based on environment
-    if (isDevelopment) {
-      console.log('🔧 Development mode: Using proxy URLs');
-      this.apiClient.defaults.baseURL = '/api';
-      this.fileClient.defaults.baseURL = '/api';
-    } else {
-      console.log('🔧 Production mode: Using direct URLs');
-      this.apiClient.defaults.baseURL = this.config.baseApiUrl;
-      this.fileClient.defaults.baseURL = this.config.baseApiUrl;
-    }
+    // Always use proxy to avoid CORS issues
+    console.log('🔧 Using proxy URLs to avoid CORS issues');
+    this.apiClient.defaults.baseURL = '/api';
+    this.fileClient.defaults.baseURL = '/api';
 
     // Add request interceptor for authentication
     this.setupAuthInterceptors();
