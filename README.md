@@ -34,6 +34,20 @@ npm run build
 npm run lint
 ```
 
+## Local
+
+### Build
+
+```sh
+docker build -f Dockerfile.openshift -t chefs-embedded-form:local .
+```
+
+### Run
+
+```sh
+docker run --rm -it -p 8080:8080 chefs-embedded-form:local
+```
+
 ## OpenShift Deployment
 
 ### Option 1: Pre-built Image
