@@ -65,14 +65,22 @@ oc process -f embedded-chefs.yaml \
 ### Option 2: Build in OpenShift (Recommended)
 ```sh
 # Deploy using build template (OpenShift builds from Git)
-oc process -f embedded-chefs-build.yaml \
-  -p APP_NAME=chefs-embedded-form \
-  -p ROUTE_HOST=chefs-embedded-form.apps.silver.devops.gov.bc.ca \
-  -p VITE_API_FORM_ID=your-form-id \
-  -p VITE_API_FORM_VERSION_ID=your-version-id \
-  -p VITE_API_KEY=your-api-key \
+oc process -f embedded-chefs-build.yaml 
+  -p APP_NAME=chefs-embedded-form 
+  -p ROUTE_HOST=chefs-embedded-form.apps.silver.devops.gov.bc.ca 
+  -p VITE_API_FORM_ID=3aa45876-464b-40b5-8cf4-9afc2545e394
+  -p VITE_API_FORM_VERSION_ID=1f57b879-1d0b-4d5e-9300-0878f0a98061
+  -p VITE_API_KEY=544a1274-f37e-4d5d-9a44-c58865493971
   | oc apply -f -
 
 # Trigger a build
 oc start-build chefs-embedded-form
+```
+
+### Deleting Resources
+```sh
+oc delete all -l app=chefs-embedded-form
+oc delete secret -l app=chefs-embedded-form
+oc delete configmap -l app=chefs-embedded-form
+oc delete pvc -l app=chefs-embedded-form
 ```
