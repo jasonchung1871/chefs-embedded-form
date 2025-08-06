@@ -45,7 +45,7 @@ docker build -f Dockerfile.openshift -t chefs-embedded-form:local .
 ### Run
 
 ```sh
-docker run --rm -it -p 8080:8080 chefs-embedded-form:local
+docker run --rm -it -p 8080:8080 -e VITE_CHEFS_BASE_URL=https://chefs-dev.apps.silver.devops.gov.bc.ca/pr-1736 -e VITE_CHEFS_BASE_PATH=/api -e VITE_API_FORM_ID=3aa45876-464b-40b5-8cf4-9afc2545e394 -e VITE_API_FORM_VERSION_ID=1f57b879-1d0b-4d5e-9300-0878f0a98061 -e VITE_API_KEY=544a1274-f37e-4d5d-9a44-c58865493971 chefs-embedded-form:local
 ```
 
 ## OpenShift Deployment
