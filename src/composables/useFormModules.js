@@ -173,9 +173,8 @@ export function useFormModules() {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = uri;
-          link.onload = resolve;
-          link.onerror = reject;
           document.head.appendChild(link);
+          resolve();
         } else {
           resolve(); // Skip unknown file types
         }
