@@ -220,7 +220,9 @@ class ChefsApi {
       ...options,
       formId: this.config.formId,
     };
-    const response = await this.fileClient.post(`/files?formId=${this.config.formId}`, file, {
+    const formData = new FormData();
+    formData.append('files', file);
+    const response = await this.fileClient.post(`/files?formId=${this.config.formId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       ...uploadConfig,
     });
