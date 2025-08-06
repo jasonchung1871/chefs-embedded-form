@@ -4,7 +4,8 @@
 echo "🔧 Injecting runtime environment variables..."
 
 # Create environment configuration file
-cat > /usr/share/nginx/html/env-config.js << EOF
+mkdir -p /tmp/nginx-html
+cat > /tmp/nginx-html/env-config.js << EOF
 window.ENV_CONFIG = {
   VITE_CHEFS_BASE_URL: "${VITE_CHEFS_BASE_URL}",
   VITE_CHEFS_BASE_PATH: "${VITE_CHEFS_BASE_PATH}",
